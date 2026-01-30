@@ -1,0 +1,79 @@
+extends layout
+
+block content
+  .row.banner
+    .col-12
+      h1 Industrial Automation
+  .row
+    .col-12.col-lg-9
+      .row
+        .col-12.col-md-6
+          p.rating
+            i.fas.fa-star
+            i.fas.fa-star
+            i.fas.fa-star
+            i.fas.fa-star
+            i.fas.fa-star
+          p Element8 South Africa
+          .card.card-primary
+            .card-block
+              h2.card-title Opening hours
+              p.card-text Monday - Friday : 7:00am - 4:30pm
+              p.card-text Saturday : closed
+              p.card-text Sunday : closed
+          .card.card-primary
+            .card-block
+              h2.card-title Facilities
+              span.badge.badge-warning
+                i.fa.fa-check
+                | &nbsp;Ignition
+              | &nbsp;
+              span.badge.badge-warning
+                i.fa.fa-check
+                | &nbsp;Canary
+              | &nbsp;
+              span.badge.badge-warning
+                i.fa.fa-check
+                | &nbsp;Sepasoft
+              | &nbsp;
+        .col-12.col-md-6.location-map
+          .card.card-primary
+            .card-block
+              h2.card-title Johannesburg
+              img.img-fluid.rounded(src='https://maps.googleapis.com/maps/api/staticmap?center=51.455041,-0.9690884&zoom=17&size=400x350&sensor=false&markers=51.455041,-0.9690884&scale=2')
+      .row
+        .col-12
+          .card.card-primary.review-card
+            .card-block
+              a.btn.btn-primary.float-right(href='/products/product/review/new') Add review
+              h2.card-title Customer reviews
+              .row.review
+                .col-12.no-gutters.review-header
+                  span.rating
+                    i.fas.fa-star
+                    i.fas.fa-star
+                    i.fas.fa-star
+                    i.far.fa-star
+                    i.far.fa-star
+                  span.reviewAuthor Katlego Gagoopane
+                  small.reviewTimestamp 29 January 2026
+                .col-12
+                  p The year of APIs
+              .row.review
+                .col-12.no-gutters.review-header
+                  span.rating
+                    i.fas.fa-star
+                    i.fas.fa-star
+                    i.fas.fa-star
+                    i.far.fa-star
+                    i.far.fa-star
+                  span.reviewAuthor Katlego Enoch
+                  small.reviewTimestamp 30 Janary 2026
+                .col-12
+                  p DevOps Practices in Industrial Automation
+    .col-12.col-lg-3
+      p.lead
+        | Commanding Ignition and Canary through API calls is Fun!
+      p
+        | Element8 is the Sole Distributor of First Class Automation Solutions in Southern Sub-Sahara
+
