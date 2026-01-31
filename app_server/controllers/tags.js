@@ -27,6 +27,23 @@ const renderTagList = (req, res, responseBody) => {
 
 };
 
+const showError = (req, res, status) => {
+    let title = '';
+    let content = '';
+    if (status === 404) {
+        title = '404,  page not found.';
+        content = 'Oh dear, it looks like you can\'t find the page. Sorry. '
+    } else {
+        title = `${status}, something\'s gone wrong.`
+        content = 'Something, somewhere has gone a little wrong.'
+    }
+    res.status(status);
+    res.render('generic-text', {
+        title,
+        content
+    });
+};
+
 const tagList = (req, res) => {
     const path = '/api/tags';
     const requestOptions = {
@@ -38,7 +55,7 @@ const tagList = (req, res) => {
         if(statusCode === 200 && body.length){
             renderTagList(req, res, body);
         } else {
-            renderTagList(req, res, {});
+            showError(res, res, statusCode);
         }
         
     });
@@ -50,36 +67,65 @@ const renderDetailsPage = (req, res, tag) => {
         title: tag.name,
         pageHeader: {
             title: tag.name,
-            sideBar: {
-                context: 'random context that does not matter for now'
-            }
+            strapline: 'random strapline'
+        },
+        sidebar: {
+                context: 'random context that does not matter for now',
+                callToACtion: 'Call to Action!'
         },
         tag
     });
-};
-
-const tagInfo = (req, res) => {
-    path = '/api/tags/';
-    requestOptions = {
-        url: `${apiOptions.server}${path}${req.params.tagid}`,
-        method: 'GET',
-        json: {}
-    };
-    request(requestOptions, (err, {statusCode}, body) => {
-        if(statusCode === 200) {
-            renderDetailsPage(req, res, body);
-        }
-    });
-
 };
 
 const addTag = (req, res) => {
     res.render('tag-add', {title: 'Add Tag to Dataset'});
 };
 
+const renderAnnotationForm = (req, res, {name}) => {
+    res.render('tag-annotation-form', {
+        title: `Annotate ${name} on 8pi`,
+        pageHeader: {title: `Annotate ${name}`}
+    });
+}
+
+const getTagInfo = (req, res, callback) => {
+    const path = `/api/tags/${req.params.tagid}`;
+    const requestOptions = {
+        url: `${apiOptions.server}${path}`,
+        method: 'GET',
+        json: {}
+    };
+    request(requestOptions, (err, {statusCode}, body) => {
+        let data = body;
+        if (statusCode === 200){
+            callback(req, res, data);
+        } else {
+            showError(req, res, statusCode);
+        }
+    });
+};
+
+
+const tagInfo = (req, res) => {
+    getTagInfo(req, res, 
+        (req, res, responseData) => renderDetailsPage(req, res, responseData));
+};
+
+const addReview = (req, res) => {
+    getTagInfo(req, res, 
+        (req, res, responseData) => renderAnnotationForm(req, res, responseData)
+    );
+};
+
+const doAddReview = (req, res) => {
+
+};
+
 
 module.exports = {
     tagList,
     tagInfo,
-    addTag
+    addTag,
+    addReview,
+    doAddReview
 };

@@ -12,7 +12,11 @@ router.get('/', ctrlMain.index);
 /* Tag Pages */
 router.get('/tags', ctrlTags.tagList);
 router.get('/tags/:tagid', ctrlTags.tagInfo);
-router.get('/tags/add/new', ctrlTags.addTag);
+
+router
+    .route('/tags/:tagid/annotation/new')
+    .get(ctrlTags.addReview)
+    .post(ctrlTags.doAddReview);
 
 /* About Page*/
 router.get('/about', ctrlOthers.about)

@@ -49,6 +49,7 @@ margin-bottom: 0.5em;
 margin-right: -16px;
 margin-left: -16px;
 margin-bottom: 0.5em;
+padding: 5px;
 }
 .badge-default, .btn-primary {
 background-color: #ad1d28;
@@ -94,4 +95,8 @@ h4 small {
   font-family: "Cabin", Arial, sans-serif;
   color: #fff;
   background-color: #4f4e52;
+  }
+
+  .push {
+    padding-right: 15px;
   }
