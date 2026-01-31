@@ -23,7 +23,6 @@ const tagSchema = mongoose.Schema({
         'default': 0
     },
     quality: String, 
-    options: [String],
     annotations: [annotationSchema]
 });
 

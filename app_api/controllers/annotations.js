@@ -46,10 +46,52 @@ const annotationsDeleteOne = (req, res) => {
 };
 
 const annotationsCreate = (req, res) => {
-    res
-        .status(200)
-        .json({"status": "success"});
+    tagid = req.params.tagid;
+    if(tagid){
+        Tag
+            .findById(tagid)
+            .then((tag) => {
+                doAddAnnotation(req, res, tag);
+
+            }).catch((err) => {
+                return res
+                        .status(404)
+                        .json({"message": "tag not found"});
+            });
+    }
+    else{
+        return res
+                .status(404)
+                .json({"message": "supply tag id"});
+    }
 };
+
+const doAddAnnotation = (req, res, tag) => {
+    if(!tag){
+        return res
+                .status(404)
+                .json({"message":"tag not found"});
+    } else {
+        const { author, comment } = req.body;
+        tag.annotations.push({
+            author,
+            comment
+        });
+        tag
+            .save()
+            .then((tag) => {
+                const thisAnnotation = tag.annotations.slice(-1).pop();
+                return res
+                        .status(201)
+                        .json(thisAnnotation);
+
+            }).catch((err) => {
+                return res
+                        .status(400)
+                        .json(err);
+            });
+    }
+}
 
 module.exports = {
     annotationsReadOne,

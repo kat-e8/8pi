@@ -48,11 +48,25 @@ const tagsUpdateOne = (req, res) => {
 };
 
 const tagsCreate = (req, res) => {
-    res
-        .status(200)
-        .json({"status": "success"});
+    Tag
+        .create({
+            name: req.body.name,
+            description: req.body.description,
+            value: req.body.value,
+            quality: req.body.quality
+           // options: req.body.options.split(",")
 
-};
+        }).then((tag) => {
+            return res
+                    .status(201)
+                    .json(tag);
+
+        }).catch((err) => {
+            return res
+                    .status(400)
+                    .json(err);
+        });
+    };
 
 const tagsDeleteOne = (req, res) => {
     res
