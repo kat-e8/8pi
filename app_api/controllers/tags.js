@@ -41,10 +41,45 @@ const tagsListByDataset = (req, res) => {
 };
 
 const tagsUpdateOne = (req, res) => {
-    res
-        .status(200)
-        .json({"status": "success"});
+    if(!req.params.tagid){
+        return res
+                .status(404)
+                .json({"message": "tag not found, tag id required."});
+    } else {
+        Tag
+            .findById(req.params.tagid)
+            .select('-annotations')
+            .then((tag) => {
+                if(req.body.name){
+                    tag.name = req.body.name;
+                }
+                if(req.body.description){
+                    tag.description = req.body.description;
+                }
+                if(req.body.quality){
+                    tag.quality = req.body.quality;                
+                }
+                if(req.body.value){
+                    tag.value = req.body.value;
+                }
+                tag
+                    .save()
+                    .then((tag) => {
+                        return res
+                                .status(200)
+                                .json(tag);
+                    }).catch((err)=> {
+                        return res
+                                .status(404)
+                                .json({"message": "tagid not found"});
+                    });
 
+            }).catch((err) => {
+                return res
+                        .status(400)
+                        .json(err);
+            });
+    }
 };
 
 const tagsCreate = (req, res) => {
@@ -54,7 +89,6 @@ const tagsCreate = (req, res) => {
             description: req.body.description,
             value: req.body.value,
             quality: req.body.quality
-           // options: req.body.options.split(",")
 
         }).then((tag) => {
             return res
