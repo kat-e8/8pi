@@ -10,8 +10,14 @@ const ctrlOthers = require('../controllers/others');
 router.get('/', ctrlMain.index);
 
 /* Tag Pages */
-router.get('/tags', ctrlTags.tagList);
 router.get('/tags/:tagid', ctrlTags.tagInfo);
+router.get('/add-tag', ctrlTags.addTag);
+
+router
+    .route('/tags')
+    .get(ctrlTags.tagList)
+    .post(ctrlTags.doAddTag);
+
 
 router
     .route('/tags/:tagid/annotation/new')

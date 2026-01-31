@@ -1,0 +1,27 @@
+extends layout
+
+block content
+  .row.banner
+    .col-12
+      h1 Add Tag to Canary Dataset
+  .row
+    .col-12.col-md-8
+      form(action="/tags", method="post", role="form")
+        .form-group.row
+          label.col-10.col-sm-2.col-form-label(for="name") Name
+          .col-12.col-sm-10
+            input#name.form-control(name="name")
+        .form-group.row
+          label.col-10.col-sm-2.col-form-label(for="description") Description
+          .col-12.col-sm-10
+            textarea#name.form-control(name="description")
+        .form-group.row
+          label.col-10.col-sm-2.col-form-label(for="value") Value
+          .col-12.col-sm-10
+            input#name.form-control(name="value")
+        .form-group.row
+          label.col-10.col-sm-2.col-form-label(for="quality") Quality
+          .col-12.col-sm-10
+            input#review.form-control(name="quality")
+        button.btn.btn-primary.float-right Add Tag
+    .col-12.col-md-4

@@ -11,7 +11,7 @@ const renderTagList = (req, res, responseBody) => {
     if (!(responseBody instanceof Array)){
         message = "API lookup error";
     } else {
-        message = "No tags found in dataset";
+        message = "";
     }
     res.render('tag-list', {
         title: 'List of Tags in Canary Historian',
@@ -55,9 +55,8 @@ const tagList = (req, res) => {
         if(statusCode === 200 && body.length){
             renderTagList(req, res, body);
         } else {
-            showError(res, res, statusCode);
+          //  showError(res, res, statusCode);
         }
-        
     });  
 };
 
@@ -74,10 +73,6 @@ const renderDetailsPage = (req, res, tag) => {
         },
         tag
     });
-};
-
-const addTag = (req, res) => {
-    res.render('tag-add', {title: 'Add Tag to Dataset'});
 };
 
 const renderAnnotationForm = (req, res, {name}) => {
@@ -110,6 +105,7 @@ const tagInfo = (req, res) => {
         (req, res, responseData) => renderDetailsPage(req, res, responseData));
 };
 
+
 const addReview = (req, res) => {
     getTagInfo(req, res, 
         (req, res, responseData) => renderAnnotationForm(req, res, responseData)
@@ -138,10 +134,45 @@ const doAddReview = (req, res) => {
 };
 
 
+const addTag = (req, res) => {
+   res.render('tag-add-form', {
+        title: `Add Tag`,
+        pageHeader: {title: `Add Tag`}
+    });
+};
+
+const doAddTag = (req, res) => {
+    path = `/api/tags`;
+    postData = {
+    name: req.body.name,
+    description: req.body.description,
+    quality: req.body.quality,
+    value: req.body.value
+   };
+   requestOptions = {
+    url: `${apiOptions.server}${path}`,
+    method: 'POST',
+    json: postData
+   };
+   request(requestOptions, (err, {statusCode}, responseBody) => {
+    if(statusCode === 201){
+            res.redirect(`/tags`);
+        } else {
+            showError(req, res, statusCode);
+        }
+   });
+};
+
+const test = (req, res) => {
+    res.render('index', {"message": "success"});
+};
+
 module.exports = {
     tagList,
     tagInfo,
-    addTag,
     addReview,
-    doAddReview
-};
+    doAddReview,
+    doAddTag,
+    addTag,
+    test
+}
