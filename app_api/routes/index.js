@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-const ctrlTags = require('../controllers/tags')
-const ctrlAnnotations = require('../controllers/annotations')
+const ctrlTags = require('../controllers/tags');
+const ctrlAnnotations = require('../controllers/annotations');
 
 // tags
 router
@@ -21,7 +21,7 @@ router
     .post(ctrlAnnotations.annotationsCreate);
 
 router
-    .route('/tags/:tadId/annotations/:annotationid')
+    .route('/tags/:tagid/annotations/:annotationid')
     .get(ctrlAnnotations.annotationsReadOne)
     .put(ctrlAnnotations.annotationsUpdateOne)
     .delete(ctrlAnnotations.annotationsDeleteOne);

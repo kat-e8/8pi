@@ -2,16 +2,41 @@ const mongoose = require('mongoose');
 const Tag = mongoose.model('Tag')
 
 const tagsReadOne = (req, res) => {
-    res
-        .status(200)
-        .json({"status": "success"});
-
+    Tag
+        .findById(req.params.tagid)
+        .then((tag) => {
+            if (!tag) {
+                return res
+                    .status(404)
+                    .json({"message": "tag not found."});
+            }
+            else {
+                return res
+                    .status(200)
+                    .json(tag);
+            }
+        }).catch((err) => {
+            return res
+                .status(404)
+                .json({"message": "tagid not found"});
+        });
 };
 
 const tagsListByDataset = (req, res) => {
-    res
-        .status(200)
-        .json({"status": "success"});
+    Tag
+        .find()
+        .then((tags) => {
+            if(tags && tags.length > 0){
+                return res
+                        .status(200)
+                        .json(tags)
+            }
+        })
+        .catch((err) => {
+                return res
+                    .status(404)
+                    .json({"message": "tag list empty"});
+        });
 
 };
 
