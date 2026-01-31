@@ -103,9 +103,25 @@ const tagsCreate = (req, res) => {
     };
 
 const tagsDeleteOne = (req, res) => {
-    res
-        .status(200)
-        .json({"status": "success"});
+    const {tagid} = req.params;
+    if(tagid){
+        Tag
+            .findByIdAndDelete(tagid)
+            .then((tag) => {
+                return res
+                        .status(204)
+                        .json(null);
+
+            }).catch((err) => {
+                return res
+                        .status(404)
+                        .json({"message": "tag not found"});
+            });
+    } else {
+        return res
+                .status(404)
+                .json({"message": "tag id required"});
+    }
 };
 
 module.exports = {
