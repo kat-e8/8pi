@@ -1,22 +1,20 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
-const mainCtrl = require('../controllers/main');
+const ctrlMain = require('../controllers/main');
+const ctrlTags = require('../controllers/tags');
+const ctrlOthers = require('../controllers/others');
 
-const productsCtrl = require('../controllers/products');
-const otherCtrl = require('../controllers/other');
-const ignitionCtrl = require('../controllers/ignition')
+
 /* GET home page. */
-router.get('/', mainCtrl.index);
+router.get('/', ctrlMain.index);
 
-router.get('/products', productsCtrl.productsList);
-router.get('/products/product', productsCtrl.productInfo);
-router.get('/products/product/review/new', productsCtrl.addReview);
+/* Tag Pages */
+router.get('/tags', ctrlTags.tagList);
+router.get('/tags/tag', ctrlTags.tagInfo);
+router.get('/tags/add/new', ctrlTags.addTag);
 
-router.get('/about', otherCtrl.about);
-
-router.get('/ignition', ignitionCtrl.ignitionList)
-router.get('/ignition/ignitionInfo', ignitionCtrl.ignitionInfo)
-router.get('/products/review/new', ignitionCtrl.addReview);
+/* About Page*/
+router.get('/about', ctrlOthers.about)
 
 module.exports = router;

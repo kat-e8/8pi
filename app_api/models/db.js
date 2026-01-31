@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
-require('./products');
+require('../models/tags');
 
-const dbURI = 'mongodb://localhost/ShopApp';
+const dbURI = 'mongodb://localhost/e8pi';
 mongoose.connect(dbURI);
 
 mongoose.connection.on('connected', () => {
@@ -18,14 +18,14 @@ mongoose.connection.on('disconnected', () => {
 });
 
 
-const gracefulShutdown = (msg, callback) => {
+/*const gracefulShutdown = (msg, callback) => {
     mongoose.connection.close(() => {
         console.log(`Mongoose disconnected through ${msg}`);
         callback();
     });
 };
 
-/*
+
 process.once('SIGUSR2', () => {
     gracefulShutdown('nodemon restart', () => {
         process.kill(process.id, 'SIGUSR2');
@@ -34,12 +34,6 @@ process.once('SIGUSR2', () => {
 
 process.on('SIGINT', () => {
     gracefulShutdown('app termination', () => {
-        process.exit(0);
-    });
-});
-
-process.on('SIGTERM', () => {
-    gracefulShutdown('Heroku app shutdown', () => {
         process.exit(0);
     });
 });*/

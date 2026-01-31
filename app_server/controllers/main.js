@@ -1,8 +1,7 @@
 const index = (req, res) => {
-    res.render('index', {title: "Element8 API Zone"});
- 
- };
+    res.render('index', {title: '8pi'})
+}
 
- module.exports = {
+module.exports = {
     index
- };
+};

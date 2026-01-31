@@ -1,28 +1,29 @@
 const express = require('express');
 const router = express.Router();
 
-const ctrlProducts = require('../controllers/products');
-const ctrlReviews = require('../controllers/reviews');
+const ctrlTags = require('../controllers/tags')
+const ctrlAnnotations = require('../controllers/annotations')
+
+// tags
+router
+    .route('/tags')
+    .get(ctrlTags.tagsListByDataset)
+    .post(ctrlTags.tagsCreate);
+router
+    .route('/tags/:tagid')
+    .get(ctrlTags.tagsReadOne)
+    .put(ctrlTags.tagsUpdateOne)
+    .delete(ctrlTags.tagsDeleteOne);
+
+//annotations
+router
+    .route('/tags/:tagid/annotations/')
+    .post(ctrlAnnotations.annotationsCreate);
 
 router
-    .route('/products')
-    .get(ctrlProducts.productsReadAll)
-    .post(ctrlProducts.productsCreateOne);
+    .route('/tags/:tadId/annotations/:annotationid')
+    .get(ctrlAnnotations.annotationsReadOne)
+    .put(ctrlAnnotations.annotationsUpdateOne)
+    .delete(ctrlAnnotations.annotationsDeleteOne);
 
-router
-    .route('/products/:productId')
-    .get(ctrlProducts.productsReadOne)
-    .put(ctrlProducts.productsUpdateOne)
-    .delete(ctrlProducts.productsDeleteOne);
-
-router
-    .route('/products/:productId/reviews')
-    .post(ctrlReviews.reviewsCreateOne);
-
-router
-    .route('/products/:productId/reviews/:reviewId')
-    .get(ctrlReviews.reviewsReadOne)
-    .put(ctrlReviews.reviewsUpdateOne)
-    .delete(ctrlReviews.reviewsDeleteOne);
-
-module.exports =  router;
+module.exports = router;

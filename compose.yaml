@@ -1,13 +1,13 @@
 services:
-  e8apiHub:
-    image: shop:v2
-    container_name: e8apiHub
-    ports:
-      - 3000:3000
-   # volumes:
-   #   - gw-data:/usr/local/bin/ignition/data
-    networks:
-      - app-network
+  # e8apiHub:
+  #   image: shop:v2
+  #   container_name: e8apiHub
+  #   ports:
+  #     - 3000:3000
+  #  # volumes:
+  #  #   - gw-data:/usr/local/bin/ignition/data
+  #   networks:
+  #     - app-network
   mongo:
     image: mongo:latest
     container_name: mongo

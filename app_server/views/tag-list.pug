@@ -8,17 +8,17 @@ block content
                 small &nbsp;#{pageHeader.strapline}
     .row
         .col-12.col-md-8
-            each product in products
+            each tag in tags
                 .card
                     .card-block
                         h4
-                            a(href="/products/product")= product.name
+                            a(href="/tags/tag")= tag.name
                             small &nbsp;
-                                +outputRating(product.rating)
-                            span.badge.badge-pill.badge-default.float-right= product.price
-                        p.address= product.description
+                                +outputRating(tag.value)
+                            span.badge.badge-pill.badge-default.float-right= tag.quality
+                        p.address= tag.description
                         p.facilities
-                            each option in product.options
+                            each option in tag.options
                                 span.badge.badge-warning= option
         .col-12.col-md-4
             p.lead= sidebar
