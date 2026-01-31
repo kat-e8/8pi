@@ -1,33 +1,38 @@
+const request = require('request');
+const apiOptions = {
+    server: 'http://localhost:3000'
+};
+if (process.env.NODE_ENV === 'production'){
+    apiOptions.server = 'https://production';
+}
 
-
-const tagList = (req, res) => {
+const renderTagList = (req, res, responseBody) => {
     res.render('tag-list', {
         title: 'List of Tags in Canary Historian',
         pageHeader: {
             title: 'Canary Tags',
             strapline: 'Test Out API Queries against endpoints on the Historian'
         },
-        tags: [{
-            name: 'Tag 1',
-            description: 'Tag 1 Description',
-            value: 3,
-            quality: 'good',
-            options: ['Hourly Average','Last Known Value','Peak Value']
-        },{
-            name: 'Tag 2',
-            description: 'Tag 2 Description',
-            value: 4,
-            quality: 'good',
-            options: ['Hourly Average','Last Known Value','Peak Value']
-        },{
-            name: 'Tag 3',
-            description: 'Tag 3 Description',
-            rating: 2,
-            price: 'uncertain',
-            options: ['Hourly Average','Last Known Value','Peak Value']
-        }],
+        tags: responseBody,
         sidebar: 'List of Tags in Dataset'
     });
+
+};
+
+const tagList = (req, res) => {
+    const path = '/api/tags';
+    const requestOptions = {
+        url: `${apiOptions.server}${path}`,
+        method: 'GET',
+        json: {}
+    };
+    request(requestOptions, (err, {statusCode}, body) => {
+        if(statusCode === 200 && body.length){
+            
+        }
+        renderTagList(req, res, body);
+    });
+  
 };
 
 const tagInfo = (req, res) => {
