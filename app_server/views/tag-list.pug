@@ -8,11 +8,12 @@ block content
                 small &nbsp;#{pageHeader.strapline}
     .row
         .col-12.col-md-8
+            .error= message
             each tag in tags
                 .card
                     .card-block
                         h4
-                            a(href="/tags/tag")= tag.name
+                            a(href=`/tags/${tag._id}`)= tag.name
                             small &nbsp;
                                 +outputRating(tag.value)
                             span.badge.badge-pill.badge-default.float-right= tag.quality

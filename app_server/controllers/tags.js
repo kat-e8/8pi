@@ -7,14 +7,22 @@ if (process.env.NODE_ENV === 'production'){
 }
 
 const renderTagList = (req, res, responseBody) => {
+    let message = null;
+    if (!(responseBody instanceof Array)){
+        message = "API lookup error";
+    } else {
+        message = "No tags found in dataset";
+    }
     res.render('tag-list', {
         title: 'List of Tags in Canary Historian',
         pageHeader: {
             title: 'Canary Tags',
-            strapline: 'Test Out API Queries against endpoints on the Historian'
+            strapline: 'Test Out API Queries against endpoints on the Historian',
+            callToAction: 'Random call to action',
+            context: 'random context'
         },
         tags: responseBody,
-        sidebar: 'List of Tags in Dataset'
+        message
     });
 
 };
@@ -28,15 +36,41 @@ const tagList = (req, res) => {
     };
     request(requestOptions, (err, {statusCode}, body) => {
         if(statusCode === 200 && body.length){
-            
+            renderTagList(req, res, body);
+        } else {
+            renderTagList(req, res, {});
         }
-        renderTagList(req, res, body);
+        
     });
   
 };
 
+const renderDetailsPage = (req, res, tag) => {
+    res.render('tag-info', {
+        title: tag.name,
+        pageHeader: {
+            title: tag.name,
+            sideBar: {
+                context: 'random context that does not matter for now'
+            }
+        },
+        tag
+    });
+};
+
 const tagInfo = (req, res) => {
-    res.render('tag-info', {title: 'Tag Information'});
+    path = '/api/tags/';
+    requestOptions = {
+        url: `${apiOptions.server}${path}${req.params.tagid}`,
+        method: 'GET',
+        json: {}
+    };
+    request(requestOptions, (err, {statusCode}, body) => {
+        if(statusCode === 200) {
+            renderDetailsPage(req, res, body);
+        }
+    });
+
 };
 
 const addTag = (req, res) => {

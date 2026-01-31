@@ -11,7 +11,7 @@ router.get('/', ctrlMain.index);
 
 /* Tag Pages */
 router.get('/tags', ctrlTags.tagList);
-router.get('/tags/tag', ctrlTags.tagInfo);
+router.get('/tags/:tagid', ctrlTags.tagInfo);
 router.get('/tags/add/new', ctrlTags.addTag);
 
 /* About Page*/
