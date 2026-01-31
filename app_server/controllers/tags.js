@@ -58,8 +58,7 @@ const tagList = (req, res) => {
             showError(res, res, statusCode);
         }
         
-    });
-  
+    });  
 };
 
 const renderDetailsPage = (req, res, tag) => {
@@ -118,7 +117,24 @@ const addReview = (req, res) => {
 };
 
 const doAddReview = (req, res) => {
-
+    tagid = req.params.tagid;
+    path = `/api/tags/${tagid}/annotations`;
+    postData = {
+        author: req.body.name,
+        comment: req.body.comment
+    };
+    requestOptions = {
+        url: `${apiOptions.server}${path}`,
+        method: 'POST',
+        json: postData
+    };
+    request(requestOptions, (err, {statusCode}, body) => {
+        if(statusCode === 201){
+            res.redirect(`/tags/${tagid}`);
+        } else {
+            showError(req, res, statusCode);
+        }
+    });
 };
 
 
