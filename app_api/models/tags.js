@@ -12,6 +12,15 @@ const annotationSchema = mongoose.Schema({
 
 mongoose.model('Annotation', annotationSchema);
 
+
+const tvSchema = mongoose.Schema({
+    t: Date,
+    v: Number,
+});
+
+mongoose.model('Tv', tvSchema);
+
+
 const tagSchema = mongoose.Schema({
     name: {
         type: String,
@@ -23,7 +32,8 @@ const tagSchema = mongoose.Schema({
         'default': 0
     },
     quality: String, 
-    annotations: [annotationSchema]
+    annotations: [annotationSchema],
+    tvs: [tvSchema]
 });
 
 

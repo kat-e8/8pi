@@ -15,7 +15,9 @@ router.get('/add-tag', ctrlTags.addTag);
 
 router
     .route('/tags')
-    .get(ctrlTags.tagList)
+    //.get(ctrlTags.tagList)
+    //.get(ctrlTags.getCanaryTagPaths)
+    .get(ctrlTags.getTagDetails)
     .post(ctrlTags.doAddTag);
 
 

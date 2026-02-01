@@ -2,6 +2,13 @@ const request = require('request');
 const apiOptions = {
     server: 'http://localhost:3000'
 };
+
+const canaryApiOptions = {
+    server: 'https://canary.dala-cirius.ts.net:55236',
+    apiToken: '31b08847-c1ba-4bb4-ad8f-e848c9d202b7',
+    apiVersion: 'v2',
+    viewName: 'canary'
+};
 if (process.env.NODE_ENV === 'production'){
     apiOptions.server = 'https://production';
 }
@@ -55,7 +62,7 @@ const tagList = (req, res) => {
         if(statusCode === 200 && body.length){
             renderTagList(req, res, body);
         } else {
-          //  showError(res, res, statusCode);
+            showError(res, res, statusCode);
         }
     });  
 };
@@ -163,9 +170,90 @@ const doAddTag = (req, res) => {
    });
 };
 
-const test = (req, res) => {
-    res.render('index', {"message": "success"});
+
+
+
+//Canary Tags
+
+const getCanaryTagPaths = (req, res) => {
+    path = `/browseTags`;
+    postData = {
+        apiToken: `${canaryApiOptions.apiToken}`,
+        path: '',
+        deep: true,
+        search: ''
+    };
+    requestOptions = {
+        url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
+        method: 'POST',
+        json: postData
+    };
+    //console.log(requestOptions);
+    request(requestOptions, (err, response) => {  
+        console.log(response.body);  
+        if(response.body.statusCode === "Good"){
+            fullTagPaths = body.tags;
+            //console.log(fullTagPaths)
+            //getTagDetails(fullTagPaths);
+            res.redirect(`/tags`);
+        } else {
+            showError(req, res, body.statusCode);
+    }
+   });
 };
+
+const getTagDetails = (req, res) => {
+        fullTagPath = 'canary.{Diagnostics}.Sys.Memory Physical';
+        path = `/getTagData2`;
+        postData = {
+            apiToken: `${canaryApiOptions.apiToken}`,
+            tags: [fullTagPath],
+            startTime: 'now-2s',
+            endTime: 'now'
+        };
+        requestOptions = {
+        url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
+        method: 'POST',
+        json: postData
+        };
+        request(requestOptions, (err, response) => {
+            if(response.body.statusCode === "Good"){
+                data = response.body.data;
+                createCanaryTag(req, res, fullTagPath, data);
+            } else {
+                 showError(req, res, statusCode);
+            }
+        });
+};
+
+//pull from canary api and push to my express-based api
+const createCanaryTag = (req, res, fullPath, tvsDict) => {
+    //console.log(tvs);
+     path = `/api/tags`;
+     postData = {
+         name: fullPath,
+         description: 'none yet',
+         quality: 'none yet',
+         value: 0,
+         tvs: tvsDict[fullPath]
+    };
+    requestOptions = {
+        url: `${apiOptions.server}${path}`,
+        method: 'POST',
+        json: postData
+    };
+    //console.log(postData);
+    request(requestOptions, (err, {statusCode}, responseBody) => {
+     if(statusCode === 201){
+            console.log(responseBody);
+            //res.redirect(`/tags`);
+         } else {
+             showError(req, res, statusCode);
+         }
+    });
+};
+
+
 
 module.exports = {
     tagList,
@@ -174,5 +262,6 @@ module.exports = {
     doAddReview,
     doAddTag,
     addTag,
-    test
+    getCanaryTagPaths,
+    getTagDetails
 }
