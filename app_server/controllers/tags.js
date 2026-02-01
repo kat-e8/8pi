@@ -188,22 +188,27 @@ const getCanaryTagPaths = (req, res) => {
         method: 'POST',
         json: postData
     };
-    //console.log(requestOptions);
     request(requestOptions, (err, response) => {  
-        console.log(response.body);  
+        //console.log(response.body);  
         if(response.body.statusCode === "Good"){
-            fullTagPaths = body.tags;
-            //console.log(fullTagPaths)
-            //getTagDetails(fullTagPaths);
-            res.redirect(`/tags`);
+            fullTagPaths = response.body.tags;
+            dataset = "{Diagnostics}.Sys";
+            finalFullTagPaths = [];
+            for (const fullTagPath of fullTagPaths){
+                if (fullTagPath.includes(dataset)) {
+                    finalFullTagPaths.push(fullTagPath);
+                }
+            }
+            console.log(finalFullTagPaths);
+            //res.redirect(`/tags`);
         } else {
-            showError(req, res, body.statusCode);
-    }
+            showError(req, res, response.body.statusCode);
+        }
    });
 };
 
-const getTagDetails = (req, res) => {
-        fullTagPath = 'canary.{Diagnostics}.Sys.Memory Physical';
+//query canary api to get details of tag path specified
+const getTagDetails = (req, res, fullTagPath) => {
         path = `/getTagData2`;
         postData = {
             apiToken: `${canaryApiOptions.apiToken}`,
@@ -217,12 +222,18 @@ const getTagDetails = (req, res) => {
         json: postData
         };
         request(requestOptions, (err, response) => {
-            if(response.body.statusCode === "Good"){
-                data = response.body.data;
-                createCanaryTag(req, res, fullTagPath, data);
-            } else {
-                 showError(req, res, statusCode);
+            data = response.body.data;
+            if (data){
+                console.log(response.body.data);
             }
+
+            /*if(response.body.statusCode === "Good"){
+                data = response.body.data;
+                console.log(data);
+               // createCanaryTag(req, res, fullTagPath, data);
+            } else {
+                 showError(req, res, response.body.statusCode);
+            }*/
         });
 };
 
@@ -242,10 +253,9 @@ const createCanaryTag = (req, res, fullPath, tvsDict) => {
         method: 'POST',
         json: postData
     };
-    //console.log(postData);
     request(requestOptions, (err, {statusCode}, responseBody) => {
      if(statusCode === 201){
-            console.log(responseBody);
+            //console.log(responseBody);
             //res.redirect(`/tags`);
          } else {
              showError(req, res, statusCode);
