@@ -214,7 +214,7 @@ const getTagsDetails = (req, res, finalFullTagPaths) => {
         postData = {
             apiToken: `${canaryApiOptions.apiToken}`,
             tags: finalFullTagPaths,
-            startTime: 'now-5m',
+            startTime: 'now-1h',
             endTime: 'now'
         };
         requestOptions = {
@@ -261,11 +261,11 @@ const createNewCanaryTagsOnly = (req, res, tagsDict) => {
 const updateCanaryTag = (req, res, responseBody, tagsDict) => {
     tagName = responseBody[0].name;
     tagid = responseBody[0]._id;
-    console.log(tagid);
     path = `/api/tags/${tagid}`;
     postData = {
-        tvs: tagsDict[responseBody.name]
+        tvs: tagsDict[tagName]
     };
+    console.log(tagsDict[tagName]);
     requestOptions = {
         url: `${apiOptions.server}${path}`,
         method: 'PUT',

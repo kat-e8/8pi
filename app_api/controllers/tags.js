@@ -62,6 +62,9 @@ const tagsUpdateOne = (req, res) => {
                 if(req.body.value){
                     tag.value = req.body.value;
                 }
+                if(req.body.tvs){
+                    tag.tvs = req.body.tvs;
+                }
                 tag
                     .save()
                     .then((tag) => {
