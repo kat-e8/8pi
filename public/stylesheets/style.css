@@ -106,3 +106,7 @@ h4 small {
   .push {
     padding-right: 15px;
   }
+
+  .tagButton {
+    margin-right: 10px;
+  }

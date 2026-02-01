@@ -15,10 +15,13 @@ router.get('/add-tag', ctrlTags.addTag);
 
 router
     .route('/tags')
-    //.get(ctrlTags.tagList)
-    .get(ctrlTags.getCanaryTagPaths)
+    .get(ctrlTags.tagList)
     //.get(ctrlTags.getTagDetails)
     .post(ctrlTags.doAddTag);
+
+router
+    .route('/refresh')
+    .get(ctrlTags.browseAndUpdateCanaryTags);
 
 
 router

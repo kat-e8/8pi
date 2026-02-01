@@ -173,9 +173,8 @@ const doAddTag = (req, res) => {
 
 
 
-//Canary Tags
-
-const getCanaryTagPaths = (req, res) => {
+////////////////////////////////////////////Canary Tags////////////////////////////////////////////////
+const browseAndUpdateCanaryTags = (req, res) => {
     path = `/browseTags`;
     postData = {
         apiToken: `${canaryApiOptions.apiToken}`,
@@ -194,6 +193,7 @@ const getCanaryTagPaths = (req, res) => {
             fullTagPaths = response.body.tags;
             dataset = "{Diagnostics}.Sys.Memory Virtual";
             finalFullTagPaths = [];
+            //only select paths that have dataset in them
             for (const fullTagPath of fullTagPaths){
                 if (fullTagPath.includes(dataset)) {
                     finalFullTagPaths.push(fullTagPath);
@@ -238,6 +238,7 @@ const getTagsDetails = (req, res, finalFullTagPaths) => {
 
 const createNewCanaryTagsOnly = (req, res, tagsDict) => {
     for (const tag in tagsDict){
+        //hit mongo api to see if tag exists
         path = `/api/tags/find/${tag}`;
         requestOptions = {
             url: `${apiOptions.server}${path}`,
@@ -246,11 +247,11 @@ const createNewCanaryTagsOnly = (req, res, tagsDict) => {
         };
         request(requestOptions, (err, {statusCode}, responseBody) => {
             if(statusCode === 200){
-                //console.log('updating');
+                //console.log('exists...updating');
                 updateCanaryTag(req, res, responseBody, tagsDict);
 
             } else {
-                //console.log('creating');
+                //console.log('don't exist...tcreating');
                 createCanaryTag(res, res, responseBody, tagsDict);
             }
         });  
@@ -265,7 +266,7 @@ const updateCanaryTag = (req, res, responseBody, tagsDict) => {
     postData = {
         tvs: tagsDict[tagName]
     };
-    console.log(tagsDict[tagName]);
+    console.log(postData);
     requestOptions = {
         url: `${apiOptions.server}${path}`,
         method: 'PUT',
@@ -273,8 +274,9 @@ const updateCanaryTag = (req, res, responseBody, tagsDict) => {
     };
     request(requestOptions, (err, {statusCode}, responseBody) => {
         if(statusCode === 200){
-            console.log('updated existing tag.');
-
+            //console.log('updated existing tag.');
+            //redirect to tags list after successfull update
+            res.redirect(`/tags`);
         } else {
             showError(req, res, statusCode);
         }
@@ -302,7 +304,8 @@ const createCanaryTag = (req, res, fullPath, tvsDict) => {
     request(requestOptions, (err, {statusCode}, responseBody) => {
      if(statusCode === 201){
             console.log('created new tag.');
-            //res.redirect(`/tags`);
+            //re-route to tag list after successful creation of new tag
+            res.redirect(`/tags`);
          } else {
              showError(req, res, statusCode);
          }
@@ -316,6 +319,6 @@ module.exports = {
     doAddReview,
     doAddTag,
     addTag,
-    getCanaryTagPaths,
+    browseAndUpdateCanaryTags,
     getTagsDetails
 }
