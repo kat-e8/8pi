@@ -10,7 +10,7 @@ block content
         .col-12.col-md-8
             form(action="/refresh", method="post", role="form")
                 .form-group.row
-                    label.col-10.col-sm-2.col-form-label(for="depth") Tag Path
+                    label.col-10.col-sm-2.left-edge.col-form-label(for="depth") Tag Path
                     .col-12.col-sm-10
                         input#name.form-control(name="depth")
                 button.btn.btn-primary.float-right Refresh Tags
@@ -20,7 +20,7 @@ block content
     .row
         .col-12.col-md-8
             .error= message
-            each tag in tags
+            each tag in tags.reverse()
                 .card
                     .card-block
                         h4
