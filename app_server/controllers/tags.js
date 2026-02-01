@@ -192,16 +192,13 @@ const getCanaryTagPaths = (req, res) => {
         //console.log(response.body);  
         if(response.body.statusCode === "Good"){
             fullTagPaths = response.body.tags;
-            dataset = "{Diagnostics}.Sys";
+            dataset = "{Diagnostics}.Sys.Memory Virtual";
             finalFullTagPaths = [];
             for (const fullTagPath of fullTagPaths){
                 if (fullTagPath.includes(dataset)) {
                     finalFullTagPaths.push(fullTagPath);
                 }
             }
-            /*for (const finalFullTagPath in finalFullTagPaths){
-                getTagDetails(req, res, finalFullTagPaths[finalFullTagPath]);
-            }*/
            getTagsDetails(req, res, finalFullTagPaths);
             //res.redirect(`/tags`);
         } else {
@@ -217,7 +214,7 @@ const getTagsDetails = (req, res, finalFullTagPaths) => {
         postData = {
             apiToken: `${canaryApiOptions.apiToken}`,
             tags: finalFullTagPaths,
-            startTime: 'now-2s',
+            startTime: 'now-2h',
             endTime: 'now'
         };
         requestOptions = {
@@ -225,30 +222,66 @@ const getTagsDetails = (req, res, finalFullTagPaths) => {
             method: 'POST',
             json: postData
         };
-        //console.log(requestOptions);
         request(requestOptions, (err, response) => {
             data = response.body.data;
-            console.log(data);
-            /*if(response.body.statusCode === "Good"){
-                data = response.body.data;
-                console.log(data);
+            if(response.body.statusCode === "Good"){
+                tagsDict = response.body.data;
+               // console.log(tagsDict);
+                //before you create a new object you have to hit the db api and find out if the tag exists
+                createNewCanaryTagsOnly(req, res, tagsDict);
                // createCanaryTag(req, res, fullTagPath, data);
             } else {
                  showError(req, res, response.body.statusCode);
-            }*/
+            }
         });
 };
 
+const createNewCanaryTagsOnly = (req, res, tagsDict) => {
+    //console.log(tagsDict);
+    tagNames = [];
+    for (const tag in tagsDict){
+        tagNames.push(tag);
+    }
+    //hit the mongo api to see if tag with name exists
+    for (const tagName in tagNames){
+        //hit the mongo api with this tagName
+        path = `/api/tags/find/${tagName}`;
+        requestOptions = {
+            url: `${apiOptions.server}${path}`,
+            method: 'GET',
+            json: {}
+        };
+        request(requestOptions, (err, {statusCode}, responseBody) => {
+            if(statusCode === 200){
+                //tag exists - uptate only
+                updateCanaryTag(req, res, tagName, tagsDict);
+
+            } else {
+                //tag doesn't exist - create
+                //tagName = 
+                createCanaryTag(res, res, tagName, tagNames, tagsDict);
+            }
+        });  
+    }
+};
+
+const updateCanaryTag = (req, res, tagName, tagsDict) => {
+    console.log('updating existing tag');
+};
+
+
+
 //pull from canary api and push to my express-based api
-const createCanaryTag = (req, res, fullPath, tvsDict) => {
-    //console.log(tvs);
+const createCanaryTag = (req, res, fullPath, tagNames, tvsDict) => {
+     tagName = tagNames[fullPath];
+     tvs = tvsDict[tagName];
      path = `/api/tags`;
      postData = {
-         name: fullPath,
+         name: tagName,
          description: 'none yet',
          quality: 'none yet',
          value: 0,
-         tvs: tvsDict[fullPath]
+         tvs: tvs
     };
     requestOptions = {
         url: `${apiOptions.server}${path}`,
@@ -257,15 +290,13 @@ const createCanaryTag = (req, res, fullPath, tvsDict) => {
     };
     request(requestOptions, (err, {statusCode}, responseBody) => {
      if(statusCode === 201){
-            //console.log(responseBody);
+            console.log(responseBody);
             //res.redirect(`/tags`);
          } else {
              showError(req, res, statusCode);
          }
     });
 };
-
-
 
 module.exports = {
     tagList,

@@ -15,6 +15,10 @@ router
     .put(ctrlTags.tagsUpdateOne)
     .delete(ctrlTags.tagsDeleteOne);
 
+router
+    .route('/tags/find/:name')
+    .get(ctrlTags.findTagByName);
+
 //annotations
 router
     .route('/tags/:tagid/annotations/')

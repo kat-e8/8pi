@@ -125,10 +125,33 @@ const tagsDeleteOne = (req, res) => {
     }
 };
 
+const findTagByName = (req, res) => {
+    const tagName = req.params.name;
+    Tag
+        .find({name: tagName})
+        .select('name')
+        .then((tag) => {
+            if(tag && tag.length > 0){
+                return res
+                    .status(200)
+                    .json(tag);
+            } else {
+                return res
+                        .status(404)
+                        .json({});
+            }
+        }).catch((err) => {
+            return res
+                    .status(404)
+                    .json({});
+        });
+};
+
 module.exports = {
     tagsReadOne,
     tagsListByDataset,
     tagsUpdateOne,
     tagsCreate,
-    tagsDeleteOne
+    tagsDeleteOne,
+    findTagByName
 };
