@@ -62,6 +62,12 @@ background-color: #ad1d28;
 border-color: #911821;
 float: right
 }
+
+.my-form {
+  color: rgb(255, 255, 255);
+  float: left;
+}
+
 h4 a, h4 a:hover {
 color: #fff;
 }
@@ -107,6 +113,12 @@ h4 small {
     padding-right: 15px;
   }
 
-  .tagButton {
-    margin-right: 10px;
+
+  .margin-top {
+    margin-top: 30px;
   }
+
+  .left-edge {
+    text-align: right;
+  }
+

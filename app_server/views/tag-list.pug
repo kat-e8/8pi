@@ -8,8 +8,15 @@ block content
                 small &nbsp;#{pageHeader.strapline}
     .row
         .col-12.col-md-8
+            form(action="/refresh", method="post", role="form")
+                .form-group.row
+                    label.col-10.col-sm-2.col-form-label(for="depth") Tag Path
+                    .col-12.col-sm-10
+                        input#name.form-control(name="depth")
+                button.btn.btn-primary.float-right Refresh Tags
+    .row.margin-top
+        .col-12.col-md-8
             a.btn.btn-primary.float-right.button(href=`/add-tag`) Add Tag
-            a.btn.btn-primary.float-left.tagButton(href=`/refresh`) Refresh Tags
     .row
         .col-12.col-md-8
             .error= message

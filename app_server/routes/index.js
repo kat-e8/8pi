@@ -21,7 +21,7 @@ router
 
 router
     .route('/refresh')
-    .get(ctrlTags.browseAndUpdateCanaryTags);
+    .post(ctrlTags.browseAndUpdateCanaryTags);
 
 
 router
