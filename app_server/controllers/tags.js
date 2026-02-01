@@ -214,7 +214,7 @@ const getTagsDetails = (req, res, finalFullTagPaths) => {
         postData = {
             apiToken: `${canaryApiOptions.apiToken}`,
             tags: finalFullTagPaths,
-            startTime: 'now-2h',
+            startTime: 'now-5m',
             endTime: 'now'
         };
         requestOptions = {
@@ -237,15 +237,8 @@ const getTagsDetails = (req, res, finalFullTagPaths) => {
 };
 
 const createNewCanaryTagsOnly = (req, res, tagsDict) => {
-    //console.log(tagsDict);
-    tagNames = [];
     for (const tag in tagsDict){
-        tagNames.push(tag);
-    }
-    //hit the mongo api to see if tag with name exists
-    for (const tagName in tagNames){
-        //hit the mongo api with this tagName
-        path = `/api/tags/find/${tagName}`;
+        path = `/api/tags/find/${tag}`;
         requestOptions = {
             url: `${apiOptions.server}${path}`,
             method: 'GET',
@@ -253,27 +246,45 @@ const createNewCanaryTagsOnly = (req, res, tagsDict) => {
         };
         request(requestOptions, (err, {statusCode}, responseBody) => {
             if(statusCode === 200){
-                //tag exists - uptate only
-                updateCanaryTag(req, res, tagName, tagsDict);
+                //console.log('updating');
+                updateCanaryTag(req, res, responseBody, tagsDict);
 
             } else {
-                //tag doesn't exist - create
-                //tagName = 
-                createCanaryTag(res, res, tagName, tagNames, tagsDict);
+                //console.log('creating');
+                createCanaryTag(res, res, responseBody, tagsDict);
             }
         });  
     }
 };
 
-const updateCanaryTag = (req, res, tagName, tagsDict) => {
-    console.log('updating existing tag');
+//hit mongo api to update existing record with new tvs
+const updateCanaryTag = (req, res, responseBody, tagsDict) => {
+    tagName = responseBody[0].name;
+    tagid = responseBody[0]._id;
+    console.log(tagid);
+    path = `/api/tags/${tagid}`;
+    postData = {
+        tvs: tagsDict[responseBody.name]
+    };
+    requestOptions = {
+        url: `${apiOptions.server}${path}`,
+        method: 'PUT',
+        json: postData
+    };
+    request(requestOptions, (err, {statusCode}, responseBody) => {
+        if(statusCode === 200){
+            console.log('updated existing tag.');
+
+        } else {
+            showError(req, res, statusCode);
+        }
+    });
 };
 
 
-
 //pull from canary api and push to my express-based api
-const createCanaryTag = (req, res, fullPath, tagNames, tvsDict) => {
-     tagName = tagNames[fullPath];
+const createCanaryTag = (req, res, fullPath, tvsDict) => {
+     tagName = fullPath;
      tvs = tvsDict[tagName];
      path = `/api/tags`;
      postData = {
@@ -290,7 +301,7 @@ const createCanaryTag = (req, res, fullPath, tagNames, tvsDict) => {
     };
     request(requestOptions, (err, {statusCode}, responseBody) => {
      if(statusCode === 201){
-            console.log(responseBody);
+            console.log('created new tag.');
             //res.redirect(`/tags`);
          } else {
              showError(req, res, statusCode);

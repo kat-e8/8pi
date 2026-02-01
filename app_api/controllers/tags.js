@@ -129,7 +129,7 @@ const findTagByName = (req, res) => {
     const tagName = req.params.name;
     Tag
         .find({name: tagName})
-        .select('name')
+        .select('name _id')
         .then((tag) => {
             if(tag && tag.length > 0){
                 return res
