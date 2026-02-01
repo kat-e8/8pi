@@ -199,7 +199,10 @@ const getCanaryTagPaths = (req, res) => {
                     finalFullTagPaths.push(fullTagPath);
                 }
             }
-            console.log(finalFullTagPaths);
+            /*for (const finalFullTagPath in finalFullTagPaths){
+                getTagDetails(req, res, finalFullTagPaths[finalFullTagPath]);
+            }*/
+           getTagsDetails(req, res, finalFullTagPaths);
             //res.redirect(`/tags`);
         } else {
             showError(req, res, response.body.statusCode);
@@ -208,25 +211,24 @@ const getCanaryTagPaths = (req, res) => {
 };
 
 //query canary api to get details of tag path specified
-const getTagDetails = (req, res, fullTagPath) => {
+const getTagsDetails = (req, res, finalFullTagPaths) => {
+        //console.log(finalFullTagPaths);
         path = `/getTagData2`;
         postData = {
             apiToken: `${canaryApiOptions.apiToken}`,
-            tags: [fullTagPath],
+            tags: finalFullTagPaths,
             startTime: 'now-2s',
             endTime: 'now'
         };
         requestOptions = {
-        url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
-        method: 'POST',
-        json: postData
+            url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
+            method: 'POST',
+            json: postData
         };
+        //console.log(requestOptions);
         request(requestOptions, (err, response) => {
             data = response.body.data;
-            if (data){
-                console.log(response.body.data);
-            }
-
+            console.log(data);
             /*if(response.body.statusCode === "Good"){
                 data = response.body.data;
                 console.log(data);
@@ -273,5 +275,5 @@ module.exports = {
     doAddTag,
     addTag,
     getCanaryTagPaths,
-    getTagDetails
+    getTagsDetails
 }
