@@ -9,6 +9,14 @@ const canaryApiOptions = {
     apiVersion: 'v2',
     viewName: 'canary'
 };
+
+const canaryWriteApiOptions = {
+    server: 'https://canary.dala-cirius.ts.net:55293',
+    apiToken: 'e90d3e51-9722-42d4-9b01-6f6ba5cbbb9d',
+    version: '/api/v1',
+    historianServer: '100.122.242.13'
+};
+
 if (process.env.NODE_ENV === 'production'){
     apiOptions.server = 'https://production';
 }
@@ -149,6 +157,36 @@ const addTag = (req, res) => {
 };
 
 const doAddTag = (req, res) => {
+    //generate sesssion token
+    path = `/getSessionToken`;
+    canaryPayload = {
+        apiToken:`${canaryWriteApiOptions.apiToken}`,
+        historians:[`${canaryWriteApiOptions.historianServer}`],
+        clientId:'nodejs',
+        settings:{
+            clientTimeout:300000,
+            fileSize:8,
+            autoCreateDatasets: true
+        }
+    };
+    requestOptions = {
+        url: `${canaryWriteApiOptions.server}${canaryWriteApiOptions.version}${path}`,
+        method: 'POST',
+        json: canaryPayload
+    };
+    request(requestOptions, (err, response) => {
+        if(response.body.statusCode === 'Good'){
+            //use session token to write to Canary
+            //console.log(response.body.sessionToken);
+            writeToHistorian(req, res, response.body.sessionToken)
+            
+        } else {
+                showError(req, res, response.body.statusCode);
+        }
+    });
+
+    ////You might not do this, but it's chance to add description
+
     path = `/api/tags`;
     postData = {
         name: req.body.name,
@@ -170,7 +208,38 @@ const doAddTag = (req, res) => {
    });
 };
 
-
+const writeToHistorian = (req, res, sessionToken) => {
+    path = `/storeData`;
+    tagPath = req.body.name;
+    value = req.body.value;
+    canaryPayload = {
+        sessionToken: sessionToken,
+        tvqs: {
+            [tagPath]: [
+                [
+                    (new Date()).toISOString(),
+                    value
+                ]
+            ]
+        }
+    };
+    console.log(canaryPayload.tvqs);
+    requestOptions = {
+        url: `${canaryWriteApiOptions.server}${canaryWriteApiOptions.version}${path}`,
+        method: 'POST',
+        json: canaryPayload
+    };
+    //request to write to canary api
+    request(requestOptions, (err, response) => {
+        if(response.body.statusCode === 'Good'){
+            //done writing to historian
+            console.log('done writing to historian');
+            //res.redirect(`/tags`);
+        } else {
+            showError(req, res, response.body.statusCode);
+        }
+    });
+};
 
 
 ////////////////////////////////////////////Canary Tags////////////////////////////////////////////////
