@@ -28,18 +28,68 @@ const renderTagList = (req, res, responseBody) => {
     } else {
         message = "";
     }
-    res.render('tag-list', {
-        title: 'List of Tags in Canary Historian',
-        pageHeader: {
-            title: 'Canary Tags',
-            strapline: 'Test Out API Queries against endpoints on the Historian',
-            callToAction: 'Random call to action',
-            context: 'random context'
-        },
-        tags: responseBody,
-        message
-    });
+    //generate list of options
+    path = `/browseTags`;
+    postData = {
+        apiToken: `${canaryApiOptions.apiToken}`,
+        path: '',
+        deep: true,
+        search: ''
+    };
+    requestOptions = {
+        url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
+        method: 'POST',
+        json: postData
+    };
+    //call to canary api to get all tag paths on historian
+    request(requestOptions, (err, response) => {  
+        //console.log(response.body);  
+        if(response.body.statusCode === "Good"){
+            fullTagPaths = response.body.tags;
+            res.render('tag-list', {
+                title: 'List of Tags in Canary Historian',
+                pageHeader: {
+                    title: 'Canary Tags',
+                    strapline: 'Test Out API Queries against endpoints on the Historian',
+                    callToAction: 'Random call to action',
+                    context: 'random context'
+                },
+                tags: responseBody,
+                message,
+                fullTagPaths
+            });
+        } else {
+            showError(req, res, response.body.statusCode);
+        }
+   });
+};
 
+const readFullTagPaths = (req, res) => {
+    path = `/browseTags`;
+    postData = {
+        apiToken: `${canaryApiOptions.apiToken}`,
+        path: '',
+        deep: true,
+        search: ''
+    };
+    requestOptions = {
+        url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
+        method: 'POST',
+        json: postData
+    };
+    //call to canary api to get all tag paths on historian
+    request(requestOptions, (err, response) => {  
+        //console.log(response.body);  
+        if(response.body.statusCode === "Good"){
+            fullTagPaths = response.body.tags;
+            //dataset = "{Diagnostics}.Sys.Memory Virtual";
+            //collect data from form field named depth
+            //with all tags collected in an array, we get details for all tag paths in the array
+            return fullTagPaths;
+        } else {
+            showError(req, res, response.body.statusCode);
+        }
+   });
 };
 
 const showError = (req, res, status) => {
@@ -223,7 +273,7 @@ const writeToHistorian = (req, res, sessionToken) => {
             ]
         }
     };
-    console.log(canaryPayload.tvqs);
+    //console.log(canaryPayload.tvqs);
     requestOptions = {
         url: `${canaryWriteApiOptions.server}${canaryWriteApiOptions.version}${path}`,
         method: 'POST',

@@ -29,7 +29,7 @@ const tagsListByDataset = (req, res) => {
             if(tags && tags.length > 0){
                 return res
                         .status(200)
-                        .json(tags)
+                        .json(tags);
             }
         })
         .catch((err) => {
