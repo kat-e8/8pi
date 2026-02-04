@@ -26,9 +26,28 @@ const renderTagList = (req, res, responseBody) => {
     if (!(responseBody instanceof Array)){
         message = "API lookup error";
     } else {
-        message = "";
+        message = ""; 
     }
-    res.render('tag-list', {
+    //collect tag information before rendering
+    path = `/browseTags`;
+    postData = {
+        apiToken: `${canaryApiOptions.apiToken}`,
+        path: '',
+        deep: true,
+        search: ''
+    };
+    requestOptions = {
+        url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
+        method: 'POST',
+        json: postData
+    };
+    //call to canary api to get all tag paths on historian
+    request(requestOptions, (err, response) => {  
+        //console.log(response.body);  
+        if(response.body.statusCode === "Good"){
+            fullTagPaths = response.body.tags;
+            //now we're ready to render
+            res.render('tag-list', {
                 title: 'List of Tags in Canary Historian',
                 pageHeader: {
                     title: 'Canary Tags',
@@ -38,9 +57,14 @@ const renderTagList = (req, res, responseBody) => {
                 },
                 tags: responseBody,
                 message,
-               // fullTagPaths,
-               // datasets
+                fullTagPaths,
             });
+        } else {
+            showError(req, res, response.body.statusCode);
+        }
+   });
+
+
     //generate list of options
 };
 

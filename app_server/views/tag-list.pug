@@ -12,8 +12,11 @@ block content
                 .form-group.row
                     label.col-10.col-sm-2.left-edge.col-form-label(for="depth") Tag Path
                     .col-12.col-sm-10
-                        input#name.form-control(name="depth")
-                button.btn.btn-primary.float-right Refresh Tags
+                        //- input#name.form-control(name="depth")
+                        select#propertyType.select.form-control.input-lg(name="depth")
+                            each fullTagPath in fullTagPaths
+                                option(value=`${fullTagPath}`, selected= true)=fullTagPath
+                button.btn.btn-primary.float-right(href=`/refresh`) Refresh Tags
     .row.margin-top
         .col-12.col-md-8
             a.btn.btn-primary.float-right.button(href=`/add-tag`) Add Tag
