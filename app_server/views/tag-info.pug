@@ -22,6 +22,18 @@ block content
         .col-12
           .card.card-primary.review-card
             .card-block
+              h2.card-title TVQs
+              each tv in tag.tvs
+                .row.review
+                  .col-12.no-gutters.review-header
+                    span.reviewAuthor.push #{tv.v}
+                    small.reviewTimestamp
+                      =tv.t
+
+                .col-12
+                    //- p !{(annotation.comment).replace(/\n/g, '<br/>')}
+          .card.card-primary.review-card
+            .card-block
               a.btn.btn-primary.float-right(href=`/tags/${tag._id}/annotation/new`) Add Tag Note
               h2.card-title Tag annotations
               each annotation in tag.annotations
