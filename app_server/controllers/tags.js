@@ -332,11 +332,12 @@ const browseAndUpdateCanaryTags = (req, res) => {
 //query canary api to get details of tag path specified
 const getTagsDetails = (req, res, finalFullTagPaths) => {
         console.log(finalFullTagPaths);
+        duration = req.body.duration;
         path = `/getTagData2`;
         postData = {
             apiToken: `${canaryApiOptions.apiToken}`,
             tags: finalFullTagPaths,
-            startTime: 'now-10s',
+            startTime: `now-${duration}`,
             endTime: 'now'
         };
         requestOptions = {
