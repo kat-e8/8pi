@@ -5,13 +5,11 @@ include _includes/sharedHTMLfunctions
 block content
   .row.banner
     .col-12
-      h1 #{pageHeader.title} | #{pageHeader.strapline}
+      h1 #{pageHeader.strapline} | #{pageHeader.title} 
   .row
     .col-12.col-lg-9
       .row
         .col-12.col-md-6
-          p.rating
-            +outputRating(tag.name)
           p= tag.description
         .col-12.col-md-6.location-map
           .card.card-primary
@@ -29,7 +27,6 @@ block content
                     span.reviewAuthor.push #{tv.v}
                     small.reviewTimestamp
                       =tv.t
-
                 .col-12
                     //- p !{(annotation.comment).replace(/\n/g, '<br/>')}
           .card.card-primary.review-card
