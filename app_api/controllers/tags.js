@@ -92,7 +92,8 @@ const tagsCreate = (req, res) => {
             description: req.body.description,
             value: req.body.value,
             quality: req.body.quality,
-            tvs: req.body.tvs
+            tvs: req.body.tvs,
+            annotations: req.body.annotations
 
         }).then((tag) => {
             return res

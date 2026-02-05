@@ -55,7 +55,7 @@ const renderTagList = (req, res, responseBody) => {
                     
                 },
                 sidebar: {
-                    context: 'List of Canary Tags absobed into NodeJS',
+                    context: '8pi is used to absorb Canary tags into a local MongoDB. To absorb a tag first select the tag from the dropdown, type in the duration using format \'xu\' where xez & u{s,m,h,d}. Clicking the delete button on an absorbed tag deletes it locally only, not in Canary.',
                     callToACtion: 'Call to Action!'},
                 tags: responseBody,
                 message,
@@ -333,7 +333,7 @@ const browseAndUpdateCanaryTags = (req, res) => {
 
 //query canary api to get details of tag path specified
 const getTagsDetails = (req, res, finalFullTagPaths) => {
-        console.log(finalFullTagPaths);
+        //console.log(finalFullTagPaths);
         duration = req.body.duration;
         path = `/getTagData2`;
         postData = {
@@ -352,6 +352,7 @@ const getTagsDetails = (req, res, finalFullTagPaths) => {
             data = response.body.data;
             if(response.body.statusCode === "Good"){
                 tagsDict = response.body.data;
+                //get last known value and annotations
                 //before you create a new object you have to hit the db api and find out if the tag exists
                 //either create or update
                 createNewCanaryTagsOnly(req, res, tagsDict);
@@ -362,7 +363,8 @@ const getTagsDetails = (req, res, finalFullTagPaths) => {
         });
 };
 
-const createNewCanaryTagsOnly = (req, res, tagsDict) => {
+const createNewCanaryTagsOnly = (req, res, tagsDict, lastValue) => {
+ 
     for (const tag in tagsDict){
         //hit mongo api to see if tag exists
         path = `/api/tags/find/${tag}`;
@@ -372,25 +374,72 @@ const createNewCanaryTagsOnly = (req, res, tagsDict) => {
             json: {}
         };
         request(requestOptions, (err, {statusCode}, responseBody) => {
-            if(statusCode === 200){
-                //console.log('exists...updating');
-                updateCanaryTag(req, res, responseBody, tagsDict);
+            path = `/getAnnotations`;
+            postData = {
+                apiToken: `${canaryApiOptions.apiToken}`,
+                tags: [tag],
+                startTime: `now - ${duration}`,
+                endTime: 'now'
+            };
+            requestOptions = {
+                url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
+                method: 'POST',
+                json: postData
+            };
+            //console.log(requestOptions);
+            //call to canary api to get all tag paths on historian
+            request(requestOptions, (err, response) => {  
+                //console.log(response.body); 
+                if(response.body.statusCode === "Good"){
+                    annotationDict = ((response.body.annotations[0]));
+                    annotationDict2 = (annotationDict.annotations[0]);
+                    finalAnnotationDict = (annotationDict2["entries"]); 
+                    //get last known value
+                    path = `/getTagData2`;
+                    postData = {
+                        apiToken: `${canaryApiOptions.apiToken}`,
+                        tags: [tag],
+                    };
+                    requestOptions = {
+                        url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
+                        method: 'POST',
+                        json: postData
+                    };
+                    //call getTagData2 endpoint on Canary Historian for tag path's tvs
+                    request(requestOptions, (err, response) => {
+                        data = response.body.data;
+                        if(response.body.statusCode === "Good"){
+                            tagsDict = response.body.data;
+                            tagName = (Object.keys(tagsDict))[0];
+                            lastKnownValue = ((tagsDict[tagName])[0]).v;
+                            if(statusCode === 200){
+                                //console.log('exists...updating');
+                                updateCanaryTag(req, res, responseBody, tagsDict, lastKnownValue, finalAnnotationDict);
+                            } else {
+                                //doesnt exist
+                                createCanaryTag(req, res, tagsDict, lastKnownValue, finalAnnotationDict);
+                            }
+                            //before you create a new object you have to hit the db api and find out if the tag exists
+                        } else {
+                            showError(req, res, response.body.statusCode);
+                        }
+                    });
 
-            } else {
-                //doesnt exist
-                createCanaryTag(req, res, tagsDict);
-            }
+                } else {
+                    showError(req, res, response.body.statusCode);
+                }
+            });
         });  
     }
 };
 
 //hit mongo api to update existing record with new tvs
-const updateCanaryTag = (req, res, responseBody, tagsDict) => {
+const updateCanaryTag = (req, res, responseBody, tagsDict, lastValue, annotationsDict) => {
     tagName = responseBody[0].name;
     tagid = responseBody[0]._id;
     path = `/api/tags/${tagid}`;
     postData = {
-        tvs: tagsDict[tagName]
+        tvs: tagsDict[tagName],
     };
     requestOptions = {
         url: `${apiOptions.server}${path}`,
@@ -411,18 +460,25 @@ const updateCanaryTag = (req, res, responseBody, tagsDict) => {
 
 
 //pull from canary api and push to my express-based api
-const createCanaryTag = (req, res, tvsDict) => {
-     key = Object.keys(tvsDict)[0];
-     console.log(key);
+const createCanaryTag = (req, res, tvsDict, lastValue, annotationsDictList) => { 
+    //console.log(annotationsDictList);
+    annotation = {
+        author: annotationsDictList[0]['user'],
+        comment: annotationsDictList[0]['message'],
+        createdOn: annotationsDictList[0]['entryTime']
+    };
+    console.log(annotation);
+    key = Object.keys(tvsDict)[0];
      tagName = key;
      tvs = tvsDict[tagName];
      path = `/api/tags`;
      postData = {
          name: tagName,
-         description: 'none yet',
-         quality: 'none yet',
-         value: 0,
-         tvs: tvs
+         description: 'No descripiton',
+         quality: 'good',
+         value: lastValue,
+         tvs: tvs,
+         annotations: [annotation]
     };
     requestOptions = {
         url: `${apiOptions.server}${path}`,
@@ -446,7 +502,7 @@ const deleteCanaryTag = (req, res) => {
     requestOptions = {
         url: `${apiOptions.server}${path}`,
         method: 'DELETE',
-        json: postData
+        json: {}
     };
     request(requestOptions, (err, {statusCode}, responseBody) => {
      if(statusCode === 204){
@@ -457,9 +513,85 @@ const deleteCanaryTag = (req, res) => {
              showError(req, res, statusCode);
          }
     });
-
-
 }
+
+const getAnnotations = (req, res, tag, duration) => {
+    path = `/getAnnotations`;
+    postData = {
+        apiToken: `${canaryApiOptions.apiToken}`,
+        tags: [tag],
+        startTime: `now - ${duration}`,
+        endTime: 'now'
+    };
+    requestOptions = {
+        url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
+        method: 'POST',
+        json: postData
+    };
+    //console.log(requestOptions);
+    //call to canary api to get all tag paths on historian
+    request(requestOptions, (err, response) => {  
+        //console.log(response.body); 
+        if(response.body.statusCode === "Good"){
+            annotationDict = ((response.body.annotations[0]));
+            annotationDict2 = (annotationDict.annotations[0]);
+            finalAnnotationDict = (annotationDict2["entries"]); 
+           // return finalAnnotationDict;
+            path = `/getTagData2`;
+            postData = {
+                apiToken: `${canaryApiOptions.apiToken}`,
+                tags: [tag],
+            };
+            requestOptions = {
+                url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
+                method: 'POST',
+                json: postData
+            };
+            //call getTagData2 endpoint on Canary Historian for tag path's tvs
+            request(requestOptions, (err, response) => {
+                data = response.body.data;
+                if(response.body.statusCode === "Good"){
+                    tagsDict = response.body.data;
+                    tagName = (Object.keys(tagsDict))[0];
+                    value = ((tagsDict[tagName])[0]).v;
+                    //before you create a new object you have to hit the db api and find out if the tag exists
+                } else {
+                    showError(req, res, response.body.statusCode);
+                }
+            });
+
+        } else {
+            showError(req, res, response.body.statusCode);
+        }
+   });
+
+};
+
+const getLastKnownValue = (req, res, tag) => {
+        path = `/getTagData2`;
+        postData = {
+            apiToken: `${canaryApiOptions.apiToken}`,
+            tags: [tag],
+        };
+        requestOptions = {
+            url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
+            method: 'POST',
+            json: postData
+        };
+        //call getTagData2 endpoint on Canary Historian for tag path's tvs
+        request(requestOptions, (err, response) => {
+            data = response.body.data;
+            if(response.body.statusCode === "Good"){
+                tagsDict = response.body.data;
+                tagName = (Object.keys(tagsDict))[0];
+                value = ((tagsDict[tagName])[0]).v;
+                return value;
+                //before you create a new object you have to hit the db api and find out if the tag exists
+            } else {
+                 showError(req, res, response.body.statusCode);
+            }
+        });
+};
 
 module.exports = {
     tagList,

@@ -35,8 +35,9 @@ block content
                         h4
                             a(href=`/tags/${tag._id}`)= tag.name
                             small &nbsp;
-                                +outputRating(tag.value)
                             a.btn.btn-primary.float-right.button(href=`/tags/${tag._id}/delete`) Delete
+                        p.address= tag.value
                         p.address= tag.quality
+                        
         .col-12.col-md-4
             p.lead= sidebar.context

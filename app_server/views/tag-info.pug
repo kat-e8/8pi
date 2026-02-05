@@ -40,7 +40,7 @@ block content
                       +outputRating(tag.value)
                     span.reviewAuthor.push #{annotation.author}
                     small.reviewTimestamp
-                      +formatDate(annotation.createdOn)
+                      annotation.createdOn
                   .col-12
                     p !{(annotation.comment).replace(/\n/g, '<br/>')}
     .col-12.col-lg-3

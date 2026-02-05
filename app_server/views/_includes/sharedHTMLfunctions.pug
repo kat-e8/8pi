@@ -10,5 +10,8 @@ mixin formatDate(dateString)
   - const d = date.getDate();
   - const m = monthNames[date.getMonth()];
   - const y = date.getFullYear();
-  - const output = `${d} ${m} ${y}`
+  - const h = date.getHours();
+  - const h - date.getMinutes();
+  - const s = date.getSeconds();
+  - const output = `${d} ${m} ${y} ${h}:${m}:${s}`
   =output
