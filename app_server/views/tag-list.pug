@@ -21,10 +21,11 @@ block content
                     .col-12.col-sm-10
                         //- input#name.form-control(name="depth")
                         input#propertyType.select.form-control.input-lg(name="duration")
-                button.btn.btn-primary.float-right(href=`/refresh`) Refresh Tags
+                button.btn.btn-primary.float-right(href=`/refresh`) Absorb
     .row.margin-top
         .col-12.col-md-8
             a.btn.btn-primary.float-right.button(href=`/add-tag`) Add Tag
+
     .row
         .col-12.col-md-8
             .error= message
@@ -35,7 +36,7 @@ block content
                             a(href=`/tags/${tag._id}`)= tag.name
                             small &nbsp;
                                 +outputRating(tag.value)
-                            span.badge.badge-pill.badge-default.float-right= tag.quality
-                        p.address= tag.description
+                            a.btn.btn-primary.float-right.button(href=`/tags/${tag._id}/delete`) Delete
+                        p.address= tag.quality
         .col-12.col-md-4
-            p.lead= sidebar
+            p.lead= sidebar.context

@@ -48,13 +48,15 @@ const renderTagList = (req, res, responseBody) => {
             fullTagPaths = response.body.tags;
             //now we're ready to render
             res.render('tag-list', {
-                title: 'List of Tags in Canary Historian',
+                title: 'Canary Tags',
                 pageHeader: {
                     title: 'Canary Tags',
                     strapline: 'Test Out API Queries against endpoints on the Historian',
-                    callToAction: 'Random call to action',
-                    context: 'random context'
+                    
                 },
+                sidebar: {
+                    context: 'List of Canary Tags absobed into NodeJS',
+                    callToACtion: 'Call to Action!'},
                 tags: responseBody,
                 message,
                 fullTagPaths,
@@ -438,6 +440,27 @@ const createCanaryTag = (req, res, tvsDict) => {
     });
 };
 
+const deleteCanaryTag = (req, res) => {
+    console.log('deleting...');
+    path = `/api/tags/${req.params.tagid}`;
+    requestOptions = {
+        url: `${apiOptions.server}${path}`,
+        method: 'DELETE',
+        json: postData
+    };
+    request(requestOptions, (err, {statusCode}, responseBody) => {
+     if(statusCode === 204){
+            console.log('tag deleted locally.');
+            //re-route to tag list after successful creation of new tag
+            res.redirect(`/tags`);
+         } else {
+             showError(req, res, statusCode);
+         }
+    });
+
+
+}
+
 module.exports = {
     tagList,
     tagInfo,
@@ -446,5 +469,6 @@ module.exports = {
     doAddTag,
     addTag,
     browseAndUpdateCanaryTags,
-    getTagsDetails
+    getTagsDetails,
+    deleteCanaryTag
 }

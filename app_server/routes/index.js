@@ -25,6 +25,11 @@ router
 
 
 router
+    .route('/tags/:tagid/delete')
+    .get(ctrlTags.deleteCanaryTag);
+
+
+router
     .route('/tags/:tagid/annotation/new')
     .get(ctrlTags.addReview)
     .post(ctrlTags.doAddReview);
