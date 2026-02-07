@@ -17,6 +17,7 @@
     "mongoose": "^8.4.1",
     "morgan": "~1.9.1",
     "pug": "2.0.0-beta11",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "@angular/cli": "^7.0.6"
   }
 }

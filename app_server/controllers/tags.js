@@ -193,11 +193,95 @@ const doAddReview = (req, res) => {
     };
     request(requestOptions, (err, {statusCode}, body) => {
         if(statusCode === 201){
+            //the annotation is also pushed up to Canary
+            WriteAnnotationToCanary(req, res)
             res.redirect(`/tags/${tagid}`);
         } else {
             showError(req, res, statusCode);
         }
     });
+};
+
+const WriteAnnotationToCanary = (req, res) => {
+    //generate sesssion token
+    path = `/getSessionToken`;
+    canaryPayload = {
+        apiToken:`${canaryWriteApiOptions.apiToken}`,
+        historians:[`${canaryWriteApiOptions.historianServer}`],
+        clientId:'nodejs',
+        settings:{
+            clientTimeout:300000,
+            fileSize:8,
+            autoCreateDatasets: true
+        }
+    };
+    requestOptions = {
+        url: `${canaryWriteApiOptions.server}${canaryWriteApiOptions.version}${path}`,
+        method: 'POST',
+        json: canaryPayload
+    };
+    request(requestOptions, (err, response) => {
+        if(response.body.statusCode === 'Good'){
+            //use session token to write to Canary
+            //console.log(response.body.sessionToken);
+            doWriteAnnotationToCanary(req, res, response.body.sessionToken)
+            
+        } else {
+                showError(req, res, response.body.statusCode);
+        }
+    });
+
+};
+
+
+const doWriteAnnotationToCanary = (req, res, sessionToken) => {
+    path = `/storeData`;
+    tagid = req.params.tagid;
+    //get tag name from id
+    path = `/api/tags/find/${tag}`;
+    requestOptions = {
+        url: `${apiOptions.server}${path}`,
+        method: 'GET',
+        json: {}
+     };
+    request(requestOptions, (err, {statusCode}, responseBody) => {
+        if(statusCode === 200){
+            tagName = responseBody;
+            postData = {
+                "sessionToken":sessionToken,
+                "annotations": {
+  	            [tagName] : [
+  		                            [
+                                        req.body.author,
+  		                                (new Date()).toISOString(),
+                                        req.body.comment  		
+  		                            ]
+  	                            ]  
+                        }
+    };
+    requestOptions = {
+        url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
+        method: 'POST',
+        json: postData
+    };
+    //call getTagData2 endpoint on Canary Historian for tag path's tvs
+    request(requestOptions, (err, response) => {
+        data = response.body.data;
+        if(response.body.statusCode === "Good"){
+            tagsDict = response.body.data;
+            tagName = (Object.keys(tagsDict))[0];
+            value = ((tagsDict[tagName])[0]).v;
+            return value;
+            //before you create a new object you have to hit the db api and find out if the tag exists
+        } else {
+            showError(req, res, response.body.statusCode);
+        }
+    });
+            }
+
+
+        });
+
 };
 
 
@@ -392,8 +476,12 @@ const createNewCanaryTagsOnly = (req, res, tagsDict, lastValue) => {
                 //console.log(response.body); 
                 if(response.body.statusCode === "Good"){
                     annotationDict = ((response.body.annotations[0]));
-                    annotationDict2 = (annotationDict.annotations[0]);
-                    finalAnnotationDict = (annotationDict2["entries"]); 
+                    if (annotationDict.annotations.length > 0){
+                        annotationDict2 = (annotationDict.annotations[0]);
+                        finalAnnotationDict = (annotationDict2["entries"]);    
+                    } else {
+                        finalAnnotationDict = {}
+                    }
                     //get last known value
                     path = `/getTagData2`;
                     postData = {
@@ -461,13 +549,16 @@ const updateCanaryTag = (req, res, responseBody, tagsDict, lastValue, annotation
 
 //pull from canary api and push to my express-based api
 const createCanaryTag = (req, res, tvsDict, lastValue, annotationsDictList) => { 
-    //console.log(annotationsDictList);
-    annotation = {
+    if(annotationsDictList.length > 0){
+        annotation = {
         author: annotationsDictList[0]['user'],
         comment: annotationsDictList[0]['message'],
         createdOn: annotationsDictList[0]['entryTime']
-    };
-    console.log(annotation);
+        };
+    } else {
+        annotation = {}
+    }
+    
     key = Object.keys(tvsDict)[0];
      tagName = key;
      tvs = tvsDict[tagName];
