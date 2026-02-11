@@ -42,8 +42,7 @@ const renderTagList = (req, res, responseBody) => {
         json: postData
     };
     //call to canary api to get all tag paths on historian
-    request(requestOptions, (err, response) => {  
-        //console.log(response.body);  
+    request(requestOptions, (err, response) => {    
         if(response.body.statusCode === "Good"){
             fullTagPaths = response.body.tags;
             //now we're ready to render
@@ -55,7 +54,7 @@ const renderTagList = (req, res, responseBody) => {
                     
                 },
                 sidebar: {
-                    context: '8pi is used to absorb Canary tags into a local MongoDB. To absorb a tag first select the tag from the dropdown, type in the duration using format \'xu\' where xez & u{s,m,h,d}. Clicking the delete button on an absorbed tag deletes it locally only, not in Canary.',
+                    context: 'Canign is used to absorb Canary tags into a local MongoDB. To absorb a tag first select the tag from the dropdown, type in the duration using format \'xu\' where xez & u{s,m,h,d}. Clicking the delete button on an absorbed tag deletes it locally only, not in Canary.',
                     callToACtion: 'Call to Action!'},
                 tags: responseBody,
                 message,
@@ -135,7 +134,7 @@ const renderDetailsPage = (req, res, tag) => {
             strapline: 'Detailed Information'
         },
         sidebar: {
-                context: 'is pulled into 8pi through an API call to Canary\'s Read API that interacts with the Views Service of the Historian.',
+                context: 'is pulled into Canign through an API call to Canary\'s Read API that interacts with the Views Service of the Historian.',
                 callToACtion: 'Call to Action!'
         },
         tag
@@ -144,7 +143,7 @@ const renderDetailsPage = (req, res, tag) => {
 
 const renderAnnotationForm = (req, res, {name}) => {
     res.render('tag-annotation-form', {
-        title: `Annotate ${name} on 8pi`,
+        title: `Annotate ${name} on Canign`,
         pageHeader: {title: `Annotate ${name}`}
     });
 }
@@ -158,6 +157,7 @@ const getTagInfo = (req, res, callback) => {
     };
     request(requestOptions, (err, {statusCode}, body) => {
         let data = body;
+        //console.log(data);
         if (statusCode === 200){
             callback(req, res, data);
         } else {
@@ -230,7 +230,6 @@ const WriteAnnotationToCanary = (req, res) => {
                 showError(req, res, response.body.statusCode);
         }
     });
-
 };
 
 
@@ -279,9 +278,7 @@ const doWriteAnnotationToCanary = (req, res, sessionToken) => {
     });
             }
 
-
         });
-
 };
 
 
@@ -313,35 +310,32 @@ const doAddTag = (req, res) => {
     request(requestOptions, (err, response) => {
         if(response.body.statusCode === 'Good'){
             //use session token to write to Canary
-            //console.log(response.body.sessionToken);
+            console.log(response.body.sessionToken);
             writeToHistorian(req, res, response.body.sessionToken)
             
         } else {
                 showError(req, res, response.body.statusCode);
         }
     });
-
-    ////You might not do this, but it's chance to add description
-
-    path = `/api/tags`;
-    postData = {
-        name: req.body.name,
-        description: req.body.description,
-        quality: req.body.quality,
-        value: req.body.value
-    };
-    requestOptions = {
-    url: `${apiOptions.server}${path}`,
-    method: 'POST',
-    json: postData
-   };
-   request(requestOptions, (err, {statusCode}, responseBody) => {
-    if(statusCode === 201){
-            res.redirect(`/tags`);
-        } else {
-            showError(req, res, statusCode);
-        }
-   });
+//     path = `/api/tags`;
+//     postData = {
+//         name: req.body.name,
+//         description: req.body.description,
+//         quality: req.body.quality,
+//         value: req.body.value
+//     };
+//     requestOptions = {
+//     url: `${apiOptions.server}${path}`,
+//     method: 'POST',
+//     json: postData
+//    };
+//    request(requestOptions, (err, {statusCode}, responseBody) => {
+//     if(statusCode === 201){
+//             res.redirect(`/tags`);
+//         } else {
+//             showError(req, res, statusCode);
+//         }
+//    });
 };
 
 const writeToHistorian = (req, res, sessionToken) => {
@@ -393,8 +387,7 @@ const browseAndUpdateCanaryTags = (req, res) => {
         json: postData
     };
     //call to canary api to get all tag paths on historian
-    request(requestOptions, (err, response) => {  
-        //console.log(response.body);  
+    request(requestOptions, (err, response) => {    
         if(response.body.statusCode === "Good"){
             fullTagPaths = response.body.tags;
             //dataset = "{Diagnostics}.Sys.CPU Usage Historian";
@@ -419,6 +412,7 @@ const browseAndUpdateCanaryTags = (req, res) => {
 const getTagsDetails = (req, res, finalFullTagPaths) => {
         //console.log(finalFullTagPaths);
         duration = req.body.duration;
+        //console.log(duration);
         path = `/getTagData2`;
         postData = {
             apiToken: `${canaryApiOptions.apiToken}`,
@@ -448,7 +442,6 @@ const getTagsDetails = (req, res, finalFullTagPaths) => {
 };
 
 const createNewCanaryTagsOnly = (req, res, tagsDict, lastValue) => {
- 
     for (const tag in tagsDict){
         //hit mongo api to see if tag exists
         path = `/api/tags/find/${tag}`;
@@ -482,36 +475,17 @@ const createNewCanaryTagsOnly = (req, res, tagsDict, lastValue) => {
                     } else {
                         finalAnnotationDict = {}
                     }
-                    //get last known value
-                    path = `/getTagData2`;
-                    postData = {
-                        apiToken: `${canaryApiOptions.apiToken}`,
-                        tags: [tag],
-                    };
-                    requestOptions = {
-                        url: `${canaryApiOptions.server}/api/${canaryApiOptions.apiVersion}${path}`,
-                        method: 'POST',
-                        json: postData
-                    };
-                    //call getTagData2 endpoint on Canary Historian for tag path's tvs
-                    request(requestOptions, (err, response) => {
-                        data = response.body.data;
-                        if(response.body.statusCode === "Good"){
-                            tagsDict = response.body.data;
-                            tagName = (Object.keys(tagsDict))[0];
-                            lastKnownValue = ((tagsDict[tagName])[0]).v;
-                            if(statusCode === 200){
-                                //console.log('exists...updating');
-                                updateCanaryTag(req, res, responseBody, tagsDict, lastKnownValue, finalAnnotationDict);
-                            } else {
-                                //doesnt exist
-                                createCanaryTag(req, res, tagsDict, lastKnownValue, finalAnnotationDict);
-                            }
-                            //before you create a new object you have to hit the db api and find out if the tag exists
-                        } else {
-                            showError(req, res, response.body.statusCode);
-                        }
-                    });
+                    ////
+                    tagName = (Object.keys(tagsDict))[0];
+                    lastKnownValue = ((tagsDict[tagName])[0]).v;
+                    if(statusCode === 200){
+                        //console.log('exists...updating');
+                        updateCanaryTag(req, res, responseBody, tagsDict, lastKnownValue, finalAnnotationDict);
+                    } else {
+                        //doesnt exist
+                        console.log(tagsDict);
+                        createCanaryTag(req, res, tagsDict, lastKnownValue, finalAnnotationDict);
+                    }
 
                 } else {
                     showError(req, res, response.body.statusCode);
@@ -559,11 +533,9 @@ const createCanaryTag = (req, res, tvsDict, lastValue, annotationsDictList) => {
         annotation = {}
     }
     
-    key = Object.keys(tvsDict)[0];
-     tagName = key;
-     tvs = tvsDict[tagName];
-     path = `/api/tags`;
-     postData = {
+    tvs = tvsDict[Object.keys(tvsDict)[0]];
+    path = `/api/tags`;
+    postData = {
          name: tagName,
          description: 'No descripiton',
          quality: 'good',

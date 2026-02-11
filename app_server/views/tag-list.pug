@@ -12,19 +12,17 @@ block content
                 .form-group.row
                     label.col-10.col-sm-2.left-edge.col-form-label(for="depth") Tag Path
                     .col-12.col-sm-10
-                        //- input#name.form-control(name="depth")
                         select#propertyType.select.form-control.input-lg(name="depth")
                             each fullTagPath in fullTagPaths
                                 option(value=`${fullTagPath}`, selected= true)=fullTagPath
                 .form-group.row
                     label.col-10.col-sm-2.left-edge.col-form-label(for="duration") Duration
                     .col-12.col-sm-10
-                        //- input#name.form-control(name="depth")
                         input#propertyType.select.form-control.input-lg(name="duration")
-                button.btn.btn-primary.float-right(href=`/refresh`) Absorb
+                button.btn.btn-primary.float-right(href=`/refresh`) Pull
     .row.margin-top
         .col-12.col-md-8
-            a.btn.btn-primary.float-right.button(href=`/add-tag`) Add Tag
+            a.btn.btn-primary.float-right.button(href=`/add-tag`) Push
 
     .row
         .col-12.col-md-8
@@ -41,3 +39,5 @@ block content
                         
         .col-12.col-md-4
             p.lead= sidebar.context
+block scripts
+        
